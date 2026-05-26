@@ -3,16 +3,34 @@
 Makie recipes for the foam ship-CFD stack. Reusable plot types for
 WaterLily / VoF / Turbulence / LiftingSurfaces / ShipShapes outputs.
 
-## Recipes
+![showcase](runs/showcase_all/showcase.png)
+
+## Recipes (13)
+
+### 2D
 
 | Recipe              | What it draws                                  |
 |---------------------|------------------------------------------------|
-| `etaheatmap`        | 2D free-surface elevation η(x, y) from α       |
-| `velocityslice`     | 2D velocity-component heatmap on a coord slice |
-| `vorticityvolume`   | 3D ω_mag or λ₂ isosurface / MIP                |
-| `hullsilhouette`    | 2D body silhouette derived from an SDF         |
-| `probeline`         | 1D profile along x/y/z                         |
-| `bladedrotor3d`     | 3D wireframe of a BladedRotor                  |
+| `etaheatmap`        | Free-surface elevation η(x, y) from α          |
+| `velocityslice`     | Velocity-component heatmap on a coord slice    |
+| `streamslice`       | 2D streamlines on a coord slice                |
+| `vectorslice`       | 2D velocity arrows on a coord slice            |
+| `hullsilhouette`    | Body silhouette contour from an SDF            |
+| `probeline`         | 1D field profile along x/y/z                   |
+
+### 3D
+
+| Recipe                | What it draws                                |
+|-----------------------|----------------------------------------------|
+| `freesurface3d`       | Water surface as a coloured height mesh      |
+| `vorticityvolume`     | ω_mag or λ₂ volume rendering (iso / MIP)     |
+| `hullmesh3d`          | Hull mesh from an SDF (Marching Cubes)       |
+| `bladedrotor3d`       | BladedRotor blade wireframe                  |
+| `rudder3d`            | Rudder flat-plate wireframe + δ rotation     |
+| `pressureisosurface`  | ±iso surfaces of a pressure field            |
+| `streamlines3d`       | RK4-integrated 3D streamlines from seeds     |
+
+### Conventions
 
 All recipes follow Makie conventions: `etaheatmap(α; …)` creates a new
 figure/axis, `etaheatmap!(ax, α; …)` plots into an existing axis. The
@@ -24,26 +42,46 @@ the plot update when the array changes (use this for animations).
 ```julia
 using CairoMakie, ShipMakie
 
-# 1. free-surface elevation
-fig, ax, p = etaheatmap(vof.α; waterline_z = NZ/2)
+# Free-surface elevation
+fig, ax, p = etaheatmap(vof.α; waterline_z = NZ/2,
+                                colorrange = (-0.4, 0.4))
 
-# 2. centreline velocity slice
+# Centreline velocity slice with hull silhouette overlay
 ax2 = Axis(fig[1, 2])
 velocityslice!(ax2, sim.flow.u; slice_axis = :y, component = 1)
-
-# 3. hull silhouette overlay
 hullsilhouette!(ax2, p -> wigley_sdf(p, L, B, T);
     grid_size = size(vof.α), slice_axis = :y)
-
-# 4. vortex volume (needs GLMakie for 3D)
-using GLMakie
-fig3 = Figure()
-ax3 = Axis3(fig3[1, 1])
-vorticityvolume!(ax3, sim.flow.u; field = :lambda2, algorithm = :iso)
-
-# 5. rotor wireframe overlay
-bladedrotor3d!(ax3, 3, 2.4, 0.5; center = (prop_xc, prop_yc, prop_zc))
 ```
+
+For 3D scenes use `GLMakie` (headless via `xvfb-run` works fine):
+
+```julia
+using GLMakie, ShipMakie
+GLMakie.activate!()
+
+fig = Figure(size = (1400, 1000))
+ax = Axis3(fig[1, 1]; aspect = :data,
+    azimuth = 0.4π, elevation = 0.2π)
+
+# Layer everything in one Axis3
+hullmesh3d!(ax, hull_sdf;          grid_size = size(vof.α))
+freesurface3d!(ax, vof.α;          waterline_z = H_w_c, alpha = 0.55)
+vorticityvolume!(ax, sim.flow.u;   field = :omega_mag)
+bladedrotor3d!(ax, 3, R, R_hub;    center = (px, py, pz), color = :red)
+rudder3d!(ax, chord, span;         center = (rx, ry, rz), δ = deg2rad(8))
+```
+
+## Examples
+
+See `examples/`:
+
+- `moving_ship_vortices.jl` — 3-panel animated demo (η + side-slice + 3D)
+- `headline_4panel.jl` — 4-panel showcase (η, u_x, streamlines, 3D scene)
+- `ultra_3d_scene.jl` — single-Axis3 scene with rotating camera
+- `showcase_all.jl` — every recipe in one figure
+
+Run with `xvfb-run -a julia examples/<name>.jl` for headless 3D, or
+`USE_GL=0 julia examples/<name>.jl` to force CairoMakie (2D only).
 
 ## Design notes
 
@@ -58,10 +96,16 @@ bladedrotor3d!(ax3, 3, 2.4, 0.5; center = (prop_xc, prop_yc, prop_zc))
   (WaterLily ghost convention). Cell-centre coords are emitted on the
   output axes so heatmaps overlay cleanly.
 
-## Status
+## Testing
 
-Tested with CairoMakie. 19 tests across 8 testsets pass. See
-`test/runtests.jl` for the canonical examples.
+```bash
+julia --project -e 'using Pkg; Pkg.test()'
+```
 
-3D recipes (`vorticityvolume`, `bladedrotor3d`) render with CairoMakie
-but the 3D volume rendering quality is much better with `GLMakie`.
+28 tests across 16 testsets pass. Tests use CairoMakie under the hood;
+3D recipes are also verified there but the resulting volume/contour
+visuals only look correct with GLMakie.
+
+## License
+
+MIT.
