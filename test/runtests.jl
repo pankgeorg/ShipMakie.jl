@@ -138,6 +138,25 @@ using StaticArrays
         @test fig isa Figure
     end
 
+    @testset "rudder3d builds a Figure" begin
+        fig = Figure(size=(400, 400))
+        ax = Axis3(fig[1, 1])
+        rudder3d!(ax, 2.0, 3.0;
+            center = (10.0, 5.0, 5.0),
+            rudder_axis = (0.0, 0.0, 1.0),
+            δ = deg2rad(10))
+        @test fig isa Figure
+    end
+
+    @testset "pressureisosurface builds a Figure" begin
+        NX, NY, NZ = 12, 12, 12
+        p3 = randn(Float32, NX, NY, NZ)
+        fig = Figure(size=(400, 400))
+        ax = Axis3(fig[1, 1])
+        pressureisosurface!(ax, p3)
+        @test fig isa Figure
+    end
+
     @testset "ShipMakie.eta_from_alpha lifts surface correctly" begin
         # A flat surface at z = 5
         NX, NY, NZ = 8, 8, 16

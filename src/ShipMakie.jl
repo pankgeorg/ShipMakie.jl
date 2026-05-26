@@ -47,6 +47,8 @@ include("bladedrotor3d.jl")
 include("freesurface3d.jl")
 include("streamslice.jl")
 include("hullmesh3d.jl")
+include("rudder3d.jl")
+include("pressureisosurface.jl")
 
 # Curated colormaps for ship-CFD work
 include("colormaps.jl")
@@ -59,6 +61,8 @@ export etaheatmap, etaheatmap!,
        bladedrotor3d, bladedrotor3d!,
        freesurface3d, freesurface3d!,
        streamslice, streamslice!,
-       hullmesh3d, hullmesh3d!
+       hullmesh3d, hullmesh3d!,
+       rudder3d, rudder3d!,
+       pressureisosurface, pressureisosurface!
 
 end # module
