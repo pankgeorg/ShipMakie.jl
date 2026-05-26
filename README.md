@@ -23,7 +23,7 @@ WaterLily / VoF / Turbulence / LiftingSurfaces / ShipShapes outputs.
 | Recipe                | What it draws                                |
 |-----------------------|----------------------------------------------|
 | `freesurface3d`       | Water surface as a coloured height mesh      |
-| `vorticityvolume`     | ω_mag or λ₂ volume rendering (iso / MIP)     |
+| `vorticityvolume`     | ‖ω‖ / λ₂ / Q-criterion volume (iso / MIP)    |
 | `hullmesh3d`          | Hull mesh from an SDF (Marching Cubes)       |
 | `bladedrotor3d`       | BladedRotor blade wireframe                  |
 | `rudder3d`            | Rudder flat-plate wireframe + δ rotation     |
