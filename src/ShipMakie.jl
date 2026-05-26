@@ -70,6 +70,7 @@ export etaheatmap, etaheatmap!,
        vectorslice, vectorslice!,
        streamlines3d, streamlines3d!,
        random_seeds,
-       default_scene
+       default_scene,
+       record_default_scene
 
 end # module

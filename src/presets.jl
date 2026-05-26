@@ -114,3 +114,60 @@ function default_scene(u::AbstractArray{T, 4}, α::AbstractArray{S, 3};
 
     return fig
 end
+
+"""
+    record_default_scene(filename::String, u_obs, α_obs, step!;
+                          nframes = 60, framerate = 20,
+                          hull_sdf = nothing, …)
+
+Convenience wrapper that records an animation of the
+`default_scene` view to `filename` (mp4 / gif / webm — backend
+decides). Uses Makie's `record` with Observable inputs so per-frame
+plot updates are reactive.
+
+# Arguments
+
+- `filename` — output file path (extension determines format).
+- `u_obs::Observable{Array}` — wraps the live velocity field.
+- `α_obs::Observable{Array}` — wraps the live colour function.
+- `step!()` — a no-arg function that advances the simulation one
+  step (does the WaterLily / VoF update and any other bookkeeping).
+  After it returns, the caller is responsible for updating `u_obs[]`
+  and `α_obs[]` to the new arrays.
+
+# Keywords
+
+- `nframes`, `framerate` — animation parameters.
+- All other kwargs are forwarded to `default_scene`.
+
+# Example
+
+```julia
+u_obs = Observable(sim.flow.u)
+α_obs = Observable(vof.α)
+function step!()
+    WaterLily.mom_step!(sim.flow, sim.pois; udf=udf, pois_tol=1f-6)
+    step_vof_mules!(vof, sim; dt=sim.flow.Δt[end-1])
+    u_obs[] = sim.flow.u
+    α_obs[] = vof.α
+end
+ShipMakie.record_default_scene("scene.mp4", u_obs, α_obs, step!;
+    nframes = 60, framerate = 24,
+    hull_sdf = my_hull_sdf,
+    rotor_center = (px, py, pz))
+```
+"""
+function record_default_scene(filename::AbstractString,
+        u_obs::Makie.Observable, α_obs::Makie.Observable, step_fn::Function;
+        nframes::Int = 60, framerate::Int = 20,
+        kwargs...)
+    fig = default_scene(u_obs[], α_obs[]; kwargs...)
+    Makie.record(fig, filename, 1:nframes; framerate = framerate) do _frame
+        step_fn()
+        # Trigger reactive updates (caller mutated the wrapped arrays)
+        Makie.notify(u_obs)
+        Makie.notify(α_obs)
+    end
+    return filename
+end
+
