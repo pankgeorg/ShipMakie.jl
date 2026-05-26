@@ -96,6 +96,11 @@ using StaticArrays
         ax2 = Axis3(fig2[1, 1])
         vorticityvolume!(ax2, u; field = :lambda2, algorithm = :mip)
         @test fig2 isa Figure
+        # q_criterion
+        fig3 = Figure(size=(400, 400))
+        ax3 = Axis3(fig3[1, 1])
+        vorticityvolume!(ax3, u; field = :q_criterion, algorithm = :mip)
+        @test fig3 isa Figure
     end
 
     @testset "bladedrotor3d wireframe" begin

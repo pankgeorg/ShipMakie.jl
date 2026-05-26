@@ -13,6 +13,9 @@ a WaterLily face-staggered velocity array `u::Array{T, 4}` (size
                                criterion (the second eigenvalue of
                                `S² + Ω²`, negated; positive lobes
                                are vortex cores)
+    - `:q_criterion`         — Hunt, Wray & Moin 1988
+                               `Q = ½(‖Ω‖² − ‖S‖²)`; positive
+                               indicates rotation-dominated regions.
 - `algorithm` — `:iso` (default) or `:mip` (maximum intensity).
 - `isovalue` — for `:iso`, the iso-level. Default 0.3 of the field's
                 95th percentile.
@@ -67,6 +70,30 @@ function _omega_mag!(out::Array{T, 3}, u::Array{T, 4}) where T
         out[i, j, k] = sqrt(ωx * ωx + ωy * ωy + ωz * ωz)
     end
     # Pad boundaries with zero (we don't compute there)
+    out[1, :, :]  .= zero(T); out[end, :, :] .= zero(T)
+    out[:, 1, :]  .= zero(T); out[:, end, :] .= zero(T)
+    out[:, :, 1]  .= zero(T); out[:, :, end] .= zero(T)
+    return out
+end
+
+# Q-criterion (Hunt, Wray & Moin 1988): Q = (Ω_ij·Ω_ij - S_ij·S_ij) / 2.
+# Positive Q indicates regions where rotation dominates strain (vortex cores).
+function _q_criterion!(out::Array{T, 3}, u::Array{T, 4}) where T
+    nx, ny, nz, _ = size(u)
+    @inbounds for k in 2:nz-1, j in 2:ny-1, i in 2:nx-1
+        I = (i, j, k)
+        g11 = _dui_dxj(u, I, 1, 1); g12 = _dui_dxj(u, I, 1, 2); g13 = _dui_dxj(u, I, 1, 3)
+        g21 = _dui_dxj(u, I, 2, 1); g22 = _dui_dxj(u, I, 2, 2); g23 = _dui_dxj(u, I, 2, 3)
+        g31 = _dui_dxj(u, I, 3, 1); g32 = _dui_dxj(u, I, 3, 2); g33 = _dui_dxj(u, I, 3, 3)
+        # S, Ω components
+        S11 = g11; S22 = g22; S33 = g33
+        S12 = 0.5 * (g12 + g21); S13 = 0.5 * (g13 + g31); S23 = 0.5 * (g23 + g32)
+        Ω12 = 0.5 * (g12 - g21); Ω13 = 0.5 * (g13 - g31); Ω23 = 0.5 * (g23 - g32)
+        ΩΩ = Ω12*Ω12 + Ω13*Ω13 + Ω23*Ω23     # antisymmetric: only off-diag
+        SS = S11*S11 + S22*S22 + S33*S33 +
+             2 * (S12*S12 + S13*S13 + S23*S23)
+        out[i, j, k] = ΩΩ - 0.5 * SS         # Q = (||Ω||² - ||S||²)/2 = ΩΩ - SS/2
+    end
     out[1, :, :]  .= zero(T); out[end, :, :] .= zero(T)
     out[:, 1, :]  .= zero(T); out[:, end, :] .= zero(T)
     out[:, :, 1]  .= zero(T); out[:, :, end] .= zero(T)
@@ -132,8 +159,11 @@ function Makie.plot!(p::VorticityVolume)
             _omega_mag!(out, u)
         elseif fld === :lambda2
             _lambda2!(out, u)
+        elseif fld === :q_criterion
+            _q_criterion!(out, u)
         else
-            throw(ArgumentError("field must be :omega_mag or :lambda2, got $(repr(fld))"))
+            throw(ArgumentError(
+                "field must be :omega_mag, :lambda2, or :q_criterion; got $(repr(fld))"))
         end
         return out
     end
