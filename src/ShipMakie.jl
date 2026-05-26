@@ -44,6 +44,8 @@ include("hullsilhouette.jl")
 include("probeline.jl")
 include("vorticityvolume.jl")
 include("bladedrotor3d.jl")
+include("freesurface3d.jl")
+include("streamslice.jl")
 
 # Curated colormaps for ship-CFD work
 include("colormaps.jl")
@@ -53,6 +55,8 @@ export etaheatmap, etaheatmap!,
        hullsilhouette, hullsilhouette!,
        probeline, probeline!,
        vorticityvolume, vorticityvolume!,
-       bladedrotor3d, bladedrotor3d!
+       bladedrotor3d, bladedrotor3d!,
+       freesurface3d, freesurface3d!,
+       streamslice, streamslice!
 
 end # module
