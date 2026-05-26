@@ -157,6 +157,33 @@ using StaticArrays
         @test fig isa Figure
     end
 
+    @testset "vectorslice builds a Figure" begin
+        NX, NY, NZ = 16, 8, 8
+        u = zeros(Float32, NX, NY, NZ, 3)
+        u[:, :, :, 1] .= 1f0
+        fig = Figure(size=(400, 200))
+        ax = Axis(fig[1, 1])
+        vectorslice!(ax, u; slice_axis = :y, stride = 3)
+        @test fig isa Figure
+    end
+
+    @testset "streamlines3d integrates without erroring" begin
+        NX, NY, NZ = 16, 16, 16
+        u = zeros(Float32, NX, NY, NZ, 3)
+        u[:, :, :, 1] .= 1f0
+        seeds = [(2.0, 4.0, 4.0), (2.0, 8.0, 8.0)]
+        fig = Figure(size=(400, 400))
+        ax = Axis3(fig[1, 1])
+        streamlines3d!(ax, u, seeds; nsteps = 20, dt = 0.5)
+        @test fig isa Figure
+    end
+
+    @testset "random_seeds returns the right shape" begin
+        seeds = ShipMakie.random_seeds((32, 16, 16), 8)
+        @test length(seeds) == 8
+        @test all(s -> 1 ≤ s[1] ≤ 32 && 1 ≤ s[2] ≤ 16 && 1 ≤ s[3] ≤ 16, seeds)
+    end
+
     @testset "ShipMakie.eta_from_alpha lifts surface correctly" begin
         # A flat surface at z = 5
         NX, NY, NZ = 8, 8, 16

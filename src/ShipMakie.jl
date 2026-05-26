@@ -49,6 +49,8 @@ include("streamslice.jl")
 include("hullmesh3d.jl")
 include("rudder3d.jl")
 include("pressureisosurface.jl")
+include("vectorslice.jl")
+include("streamlines3d.jl")
 
 # Curated colormaps for ship-CFD work
 include("colormaps.jl")
@@ -63,6 +65,9 @@ export etaheatmap, etaheatmap!,
        streamslice, streamslice!,
        hullmesh3d, hullmesh3d!,
        rudder3d, rudder3d!,
-       pressureisosurface, pressureisosurface!
+       pressureisosurface, pressureisosurface!,
+       vectorslice, vectorslice!,
+       streamlines3d, streamlines3d!,
+       random_seeds
 
 end # module
