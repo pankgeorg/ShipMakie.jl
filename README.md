@@ -71,6 +71,16 @@ bladedrotor3d!(ax, 3, R, R_hub;    center = (px, py, pz), color = :red)
 rudder3d!(ax, chord, span;         center = (rx, ry, rz), δ = deg2rad(8))
 ```
 
+## Presets
+
+- `ShipMakie.default_scene(u, α; hull_sdf, …)` — return a 4-panel
+  `Figure` (η plan + u_x side slice + streamslice + 3D scene). The
+  fastest path to "let me see my sim".
+- `ShipMakie.record_default_scene(filename, u_obs, α_obs, step!;
+   nframes, …)` — wraps `default_scene` + `Makie.record` to record
+  an animation by repeatedly calling `step!()`. See
+  `docs/cookbook.md` for the calling pattern.
+
 ## Examples
 
 See `examples/`:
@@ -79,9 +89,19 @@ See `examples/`:
 - `headline_4panel.jl` — 4-panel showcase (η, u_x, streamlines, 3D scene)
 - `ultra_3d_scene.jl` — single-Axis3 scene with rotating camera
 - `showcase_all.jl` — every recipe in one figure
+- `streamlines_demo.jl` — 3D streamlines around the hull
+- `particle_tracer_animation.jl` — 200 live-advected particles, 100 frames
+- `hero_image.jl` — high-res hero render
+- `kelvin_wake.jl` — classical 19.47° V-shape in a long domain
+- `kelvin_fr_sweep.jl` — Fr-invariance of the wedge across 4 Fr values
 
 Run with `xvfb-run -a julia examples/<name>.jl` for headless 3D, or
 `USE_GL=0 julia examples/<name>.jl` to force CairoMakie (2D only).
+
+## Cookbook
+
+`docs/cookbook.md` has a worked example for every recipe plus
+layering recommendations and the animation pattern.
 
 ## Design notes
 
