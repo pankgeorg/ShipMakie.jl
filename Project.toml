@@ -1,0 +1,20 @@
+name = "ShipMakie"
+uuid = "9c3f1d8a-b5e7-4c2f-9a3d-1e8b4f5c2d6a"
+authors = ["Pankratios Georgakopoulos <p.georgakopoulos@silentech.gr>"]
+version = "0.1.0"
+
+[deps]
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[compat]
+Makie = "0.20, 0.21, 0.22"
+StaticArrays = "1"
+julia = "1.10"
+
+[extras]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["CairoMakie", "Test"]
