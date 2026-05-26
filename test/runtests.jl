@@ -184,6 +184,24 @@ using StaticArrays
         @test all(s -> 1 ≤ s[1] ≤ 32 && 1 ≤ s[2] ≤ 16 && 1 ≤ s[3] ≤ 16, seeds)
     end
 
+    @testset "default_scene builds a 4-panel Figure" begin
+        NX, NY, NZ = 16, 12, 12
+        u = zeros(Float32, NX, NY, NZ, 3)
+        u[:, :, :, 1] .= 1f0
+        α = zeros(Float32, NX, NY, NZ)
+        for k in 1:NZ, j in 1:NY, i in 1:NX
+            α[i, j, k] = (k - 1.5f0) ≤ NZ/2 ? 1f0 : 0f0
+        end
+        sphere_sdf(p) = sqrt((p[1] - NX/2)^2 + (p[2] - NY/2)^2 + (p[3] - NZ/2)^2) - 4.0
+        fig = ShipMakie.default_scene(u, α;
+            hull_sdf = sphere_sdf,
+            hull_box = (NX/2, NY/2, 8.0, 8.0),
+            rotor_center = (NX/2 + 5, NY/2, NZ/2),
+            rotor_R = 2.0, rotor_R_hub = 0.4,
+        )
+        @test fig isa Figure
+    end
+
     @testset "ShipMakie.eta_from_alpha lifts surface correctly" begin
         # A flat surface at z = 5
         NX, NY, NZ = 8, 8, 16

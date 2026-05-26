@@ -51,6 +51,7 @@ include("rudder3d.jl")
 include("pressureisosurface.jl")
 include("vectorslice.jl")
 include("streamlines3d.jl")
+include("presets.jl")
 
 # Curated colormaps for ship-CFD work
 include("colormaps.jl")
@@ -68,6 +69,7 @@ export etaheatmap, etaheatmap!,
        pressureisosurface, pressureisosurface!,
        vectorslice, vectorslice!,
        streamlines3d, streamlines3d!,
-       random_seeds
+       random_seeds,
+       default_scene
 
 end # module
