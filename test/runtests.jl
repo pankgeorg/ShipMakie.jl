@@ -130,6 +130,14 @@ using StaticArrays
         @test fig isa Figure
     end
 
+    @testset "hullmesh3d builds a Figure" begin
+        sphere_sdf(p) = sqrt(p[1]^2 + p[2]^2 + p[3]^2) - 4.0
+        fig = Figure(size=(400, 400))
+        ax = Axis3(fig[1, 1])
+        hullmesh3d!(ax, sphere_sdf; grid_size = (16, 16, 16))
+        @test fig isa Figure
+    end
+
     @testset "ShipMakie.eta_from_alpha lifts surface correctly" begin
         # A flat surface at z = 5
         NX, NY, NZ = 8, 8, 16

@@ -46,6 +46,7 @@ include("vorticityvolume.jl")
 include("bladedrotor3d.jl")
 include("freesurface3d.jl")
 include("streamslice.jl")
+include("hullmesh3d.jl")
 
 # Curated colormaps for ship-CFD work
 include("colormaps.jl")
@@ -57,6 +58,7 @@ export etaheatmap, etaheatmap!,
        vorticityvolume, vorticityvolume!,
        bladedrotor3d, bladedrotor3d!,
        freesurface3d, freesurface3d!,
-       streamslice, streamslice!
+       streamslice, streamslice!,
+       hullmesh3d, hullmesh3d!
 
 end # module
