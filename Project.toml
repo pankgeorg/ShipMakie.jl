@@ -1,6 +1,6 @@
 name = "ShipMakie"
 uuid = "9c3f1d8a-b5e7-4c2f-9a3d-1e8b4f5c2d6a"
-authors = ["Pankratios Georgakopoulos <p.georgakopoulos@silentech.gr>"]
+authors = ["Panagiotis Georgakopoulos <p.georgakopoulos@silentech.gr>"]
 version = "0.1.0"
 
 [deps]
